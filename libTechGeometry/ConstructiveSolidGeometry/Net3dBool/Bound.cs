@@ -16,6 +16,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
+
 namespace Net3dBool {
 	public class Bound {
 		/** maximum from the x coordinate */
@@ -44,9 +47,9 @@ namespace Net3dBool {
      * @param p3 point relative to the third vertex
      */
 		public Bound(Point3d p1, Point3d p2, Point3d p3) {
-			xMax = xMin = p1.x;
-			yMax = yMin = p1.y;
-			zMax = zMin = p1.z;
+			xMax = xMin = p1.X;
+			yMax = yMin = p1.Y;
+			zMax = zMin = p1.Z;
 
 			checkVertex(p2);
 			checkVertex(p3);
@@ -58,9 +61,9 @@ namespace Net3dBool {
      * @param vertices the object vertices
      */
 		public Bound(Point3d[] vertices) {
-			xMax = xMin = vertices[0].x;
-			yMax = yMin = vertices[0].y;
-			zMax = zMin = vertices[0].z;
+			xMax = xMin = vertices[0].X;
+			yMax = yMin = vertices[0].Y;
+			zMax = zMin = vertices[0].Z;
 
 			for (int i = 1; i < vertices.Length; i++) {
 				checkVertex(vertices[i]);
@@ -102,22 +105,22 @@ namespace Net3dBool {
      * @param vertex vertex to be tested
      */
 		private void checkVertex(Point3d vertex) {
-			if (vertex.x > xMax) {
-				xMax = vertex.x;
-			} else if (vertex.x < xMin) {
-				xMin = vertex.x;
+			if (vertex.X > xMax) {
+				xMax = vertex.X;
+			} else if (vertex.X < xMin) {
+				xMin = vertex.X;
 			}
 
-			if (vertex.y > yMax) {
-				yMax = vertex.y;
-			} else if (vertex.y < yMin) {
-				yMin = vertex.y;
+			if (vertex.Y > yMax) {
+				yMax = vertex.Y;
+			} else if (vertex.Y < yMin) {
+				yMin = vertex.Y;
 			}
 
-			if (vertex.z > zMax) {
-				zMax = vertex.z;
-			} else if (vertex.z < zMin) {
-				zMin = vertex.z;
+			if (vertex.Z > zMax) {
+				zMax = vertex.Z;
+			} else if (vertex.Z < zMin) {
+				zMin = vertex.Z;
 			}
 		}
 	}

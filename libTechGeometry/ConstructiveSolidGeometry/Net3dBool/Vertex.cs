@@ -15,21 +15,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
 
 namespace Net3dBool {
 	public class Vertex {
 		/** vertex coordinate in X */
-		public double x;
+		public float X;
 		/** vertex coordinate in Y */
-		public double y;
+		public float Y;
 		/** vertex coordinate in Z */
-		public double z;
+		public float Z;
 		/** references to vertices conected to it by an edge  */
 		private List<Vertex> adjacentVertices;
 		/** vertex status relative to other object */
 		private int status;
 		/** vertex color */
-		private Color3f color;
+		private Vector4 color;
 
 		/** tolerance value to test equalities */
 		private static double TOL = 1e-5f;
@@ -51,12 +54,12 @@ namespace Net3dBool {
      * @param position vertex position
      * @param color vertex color
      */
-		public Vertex(Point3d position, Color3f color) {
-			this.color = color.Clone();
+		public Vertex(Point3d position, Vector4 color) {
+			this.color = color;
 
-			x = position.x;
-			y = position.y;
-			z = position.z;
+			X = position.X;
+			Y = position.Y;
+			Z = position.Z;
 
 			adjacentVertices = new List<Vertex>();
 			status = UNKNOWN;
@@ -70,12 +73,12 @@ namespace Net3dBool {
      * @param z coordinate on the z axis
      * @param color vertex color
      */
-		public Vertex(double x, double y, double z, Color3f color) {
-			this.color = color.Clone();
+		public Vertex(float x, float y, float z, Vector4 color) {
+			this.color = color;
 
-			this.x = x;
-			this.y = y;
-			this.z = z;
+			this.X = x;
+			this.Y = y;
+			this.Z = z;
 
 			adjacentVertices = new List<Vertex>();
 			status = UNKNOWN;
@@ -88,12 +91,12 @@ namespace Net3dBool {
      * @param color vertex color
      * @param status vertex status - UNKNOWN, BOUNDARY, INSIDE or OUTSIDE
      */
-		public Vertex(Point3d position, Color3f color, int status) {
-			this.color = color.Clone();
+		public Vertex(Point3d position, Vector4 color, int status) {
+			this.color = color;
 
-			x = position.x;
-			y = position.y;
-			z = position.z;
+			X = position.X;
+			Y = position.Y;
+			Z = position.Z;
 
 			adjacentVertices = new List<Vertex>();
 			this.status = status;
@@ -108,12 +111,12 @@ namespace Net3dBool {
      * @param color vertex color
      * @param status vertex status - UNKNOWN, BOUNDARY, INSIDE or OUTSIDE
      */
-		public Vertex(double x, double y, double z, Color3f color, int status) {
-			this.color = color.Clone();
+		public Vertex(float x, float y, float z, Vector4 color, int status) {
+			this.color = color;
 
-			this.x = x;
-			this.y = y;
-			this.z = z;
+			this.X = x;
+			this.Y = y;
+			this.Z = z;
 
 			adjacentVertices = new List<Vertex>();
 			this.status = status;
@@ -131,10 +134,10 @@ namespace Net3dBool {
      */
 		public Vertex Clone() {
 			Vertex clone = new Vertex();
-			clone.x = x;
-			clone.y = y;
-			clone.z = z;
-			clone.color = color.Clone();
+			clone.X = X;
+			clone.Y = Y;
+			clone.Z = Z;
+			clone.color = color;
 			clone.status = status;
 			clone.adjacentVertices = new List<Vertex>();
 			for (int i = 0; i < adjacentVertices.Count; i++) {
@@ -150,7 +153,7 @@ namespace Net3dBool {
      * @return the string definition
      */
 		public String toString() {
-			return "(" + x + ", " + y + ", " + z + ")";
+			return "(" + X + ", " + Y + ", " + Z + ")";
 		}
 
 		/**
@@ -161,8 +164,8 @@ namespace Net3dBool {
      * @return true if they are equal, false otherwise. 
      */
 		public bool equals(Vertex vertex) {
-			return Math.Abs(x - vertex.x) < TOL && Math.Abs(y - vertex.y) < TOL
-			&& Math.Abs(z - vertex.z) < TOL && color.Equals(vertex.color);
+			return Math.Abs(X - vertex.X) < TOL && Math.Abs(Y - vertex.Y) < TOL
+			&& Math.Abs(Z - vertex.Z) < TOL && color.Equals(vertex.color);
 		}
 
 		//--------------------------------------SETS------------------------------------//
@@ -186,7 +189,7 @@ namespace Net3dBool {
      * @return vertex position
      */
 		public Point3d getPosition() {
-			return new Point3d(x, y, z);
+			return new Point3d(X, Y, Z);
 		}
 
 		/**
@@ -216,8 +219,8 @@ namespace Net3dBool {
      * 
      * @return vertex color
      */
-		public Color3f getColor() {
-			return color.Clone();
+		public Vector4 getColor() {
+			return color;
 		}
 
 		//----------------------------------OTHERS--------------------------------------//

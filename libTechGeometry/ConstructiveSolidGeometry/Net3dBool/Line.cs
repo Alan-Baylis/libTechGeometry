@@ -16,6 +16,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
+
 namespace Net3dBool {
 	public class Line {
 		/** a line point */
@@ -39,32 +42,34 @@ namespace Net3dBool {
 			Vector3d normalFace2 = face2.getNormal();
 
 			//direction: cross product of the faces normals
-			direction = new Vector3d();
-			direction.cross(normalFace1, normalFace2);
+			//direction = new Vector3d();
+			//direction.cross(normalFace1, normalFace2);
+
+			direction = Vector3d.Cross(normalFace1, normalFace2);
 
 			//if direction lenght is not zero (the planes aren't parallel )...
-			if (!(direction.length() < TOL)) {
+			if (!(direction.Length() < TOL)) {
 				//getting a line point, zero is set to a coordinate whose direction 
 				//component isn't zero (line intersecting its origin plan)
 				point = new Point3d();
-				double d1 = -(normalFace1.x * face1.v1.x + normalFace1.y * face1.v1.y + normalFace1.z * face1.v1.z);
-				double d2 = -(normalFace2.x * face2.v1.x + normalFace2.y * face2.v1.y + normalFace2.z * face2.v1.z);
-				if (Math.Abs(direction.x) > TOL) {
-					point.x = 0;
-					point.y = (d2 * normalFace1.z - d1 * normalFace2.z) / direction.x;
-					point.z = (d1 * normalFace2.y - d2 * normalFace1.y) / direction.x;
-				} else if (Math.Abs(direction.y) > TOL) {
-					point.x = (d1 * normalFace2.z - d2 * normalFace1.z) / direction.y;
-					point.y = 0;
-					point.z = (d2 * normalFace1.x - d1 * normalFace2.x) / direction.y;
+				float d1 = -(normalFace1.X * face1.v1.X + normalFace1.Y * face1.v1.Y + normalFace1.Z * face1.v1.Z);
+				float d2 = -(normalFace2.X * face2.v1.X + normalFace2.Y * face2.v1.Y + normalFace2.Z * face2.v1.Z);
+				if (Math.Abs(direction.X) > TOL) {
+					point.X = 0;
+					point.Y = (d2 * normalFace1.Z - d1 * normalFace2.Z) / direction.X;
+					point.Z = (d1 * normalFace2.Y - d2 * normalFace1.Y) / direction.X;
+				} else if (Math.Abs(direction.Y) > TOL) {
+					point.X = (d1 * normalFace2.Z - d2 * normalFace1.Z) / direction.Y;
+					point.Y = 0;
+					point.Z = (d2 * normalFace1.X - d1 * normalFace2.X) / direction.Y;
 				} else {
-					point.x = (d2 * normalFace1.y - d1 * normalFace2.y) / direction.z;
-					point.y = (d1 * normalFace2.x - d2 * normalFace1.x) / direction.z;
-					point.z = 0;
+					point.X = (d2 * normalFace1.Y - d1 * normalFace2.Y) / direction.Z;
+					point.Y = (d1 * normalFace2.X - d2 * normalFace1.X) / direction.Z;
+					point.Z = 0;
 				}
 			}
 
-			direction.normalize();
+			direction = Vector3d.Normalize(direction);
 		}
 
 		private Line() {
@@ -77,9 +82,9 @@ namespace Net3dBool {
      * @param point beginning of the ray
      */
 		public Line(Vector3d direction, Point3d point) {
-			this.direction = direction.Clone();
-			this.point = point.Clone();
-			direction.normalize();
+			this.direction = Vector3d.Normalize(direction);
+			this.point = point;
+			//direction.normalize();
 		}
 
 		//---------------------------------OVERRIDES------------------------------------//
@@ -91,8 +96,8 @@ namespace Net3dBool {
      */
 		public Line Clone() {
 			Line clone = new Line();
-			clone.direction = direction.Clone();
-			clone.point = point.Clone();
+			clone.direction = direction;
+			clone.point = point;
 			return clone;
 		}
 
@@ -113,7 +118,7 @@ namespace Net3dBool {
      * @return point used to represent the line
      */
 		public Point3d getPoint() {
-			return point.Clone();
+			return point;
 		}
 
 		/**
@@ -122,7 +127,7 @@ namespace Net3dBool {
      * @return line direction
      */
 		public Vector3d getDirection() {
-			return direction.Clone();
+			return direction;
 		}
 
 		//-----------------------------------SETS---------------------------------------//
@@ -133,7 +138,7 @@ namespace Net3dBool {
      * @param point new point
      */
 		public void setPoint(Point3d point) {
-			this.point = point.Clone();
+			this.point = point;
 		}
 
 		/**
@@ -142,7 +147,7 @@ namespace Net3dBool {
      * @param direction new direction
      */
 		public void setDirection(Vector3d direction) {
-			this.direction = direction.Clone();
+			this.direction = direction;
 		}
 
 		//--------------------------------OTHERS----------------------------------------//
@@ -156,10 +161,12 @@ namespace Net3dBool {
      * distance is negative 
      */
 		public double computePointToPointDistance(Point3d otherPoint) {
-			double distance = otherPoint.distance(point);
-			Vector3d vec = new Vector3d(otherPoint.x - point.x, otherPoint.y - point.y, otherPoint.z - point.z);
-			vec.normalize();
-			if (vec.dot(direction) < 0) {
+			//float distance = otherPoint.distance(point);
+			float distance = Vector3d.Distance(otherPoint, point);
+
+			Vector3d vec = Vector3d.Normalize(new Vector3d(otherPoint.X - point.X, otherPoint.Y - point.Y, otherPoint.Z - point.Z));
+
+			if (Vector3d.Dot(vec, direction) < 0) {
 				return -distance;
 			} else {
 				return distance;
@@ -173,7 +180,7 @@ namespace Net3dBool {
      * to intersect
      * @return point resulting from the intersection. If the point coundn't be obtained, return null
      */
-		public Point3d computeLineIntersection(Line otherLine) {
+		public Point3d? computeLineIntersection(Line otherLine) {
 			//x = x1 + a1*t = x2 + b1*s
 			//y = y1 + a2*t = y2 + b2*s
 			//z = z1 + a3*t = z2 + b3*s
@@ -181,19 +188,20 @@ namespace Net3dBool {
 			Point3d linePoint = otherLine.getPoint();
 			Vector3d lineDirection = otherLine.getDirection();
 
-			double t;
-			if (Math.Abs(direction.y * lineDirection.x - direction.x * lineDirection.y) > TOL) {
-				t = (-point.y * lineDirection.x + linePoint.y * lineDirection.x + lineDirection.y * point.x - lineDirection.y * linePoint.x) / (direction.y * lineDirection.x - direction.x * lineDirection.y);
-			} else if (Math.Abs(-direction.x * lineDirection.z + direction.z * lineDirection.x) > TOL) {
-				t = -(-lineDirection.z * point.x + lineDirection.z * linePoint.x + lineDirection.x * point.z - lineDirection.x * linePoint.z) / (-direction.x * lineDirection.z + direction.z * lineDirection.x);
-			} else if (Math.Abs(-direction.z * lineDirection.y + direction.y * lineDirection.z) > TOL) {
-				t = (point.z * lineDirection.y - linePoint.z * lineDirection.y - lineDirection.z * point.y + lineDirection.z * linePoint.y) / (-direction.z * lineDirection.y + direction.y * lineDirection.z);
+			float t;
+
+			if (Math.Abs(direction.Y * lineDirection.X - direction.X * lineDirection.Y) > TOL) {
+				t = (-point.Y * lineDirection.X + linePoint.Y * lineDirection.X + lineDirection.Y * point.X - lineDirection.Y * linePoint.X) / (direction.Y * lineDirection.X - direction.X * lineDirection.Y);
+			} else if (Math.Abs(-direction.X * lineDirection.Z + direction.Z * lineDirection.X) > TOL) {
+				t = -(-lineDirection.Z * point.X + lineDirection.Z * linePoint.X + lineDirection.X * point.Z - lineDirection.X * linePoint.Z) / (-direction.X * lineDirection.Z + direction.Z * lineDirection.X);
+			} else if (Math.Abs(-direction.Z * lineDirection.Y + direction.Y * lineDirection.Z) > TOL) {
+				t = (point.Z * lineDirection.Y - linePoint.Z * lineDirection.Y - lineDirection.Z * point.Y + lineDirection.Z * linePoint.Y) / (-direction.Z * lineDirection.Y + direction.Y * lineDirection.Z);
 			} else
 				return null;
 
-			double x = point.x + direction.x * t;
-			double y = point.y + direction.y * t;
-			double z = point.z + direction.z * t;
+			float x = point.X + direction.X * t;
+			float y = point.Y + direction.Y * t;
+			float z = point.Z + direction.Z * t;
 
 			return new Point3d(x, y, z);
 		}
@@ -205,7 +213,7 @@ namespace Net3dBool {
      * @param planePoint a plane point. 
      * @return intersection point. If they don't intersect, return null
      */
-		public Point3d computePlaneIntersection(Vector3d normal, Point3d planePoint) {
+		public Point3d? computePlaneIntersection(Vector3d normal, Point3d planePoint) {
 			//Ax + By + Cz + D = 0
 			//x = x0 + t(x1 � x0)
 			//y = y0 + t(y1 � y0)
@@ -213,30 +221,30 @@ namespace Net3dBool {
 			//(x1 - x0) = dx, (y1 - y0) = dy, (z1 - z0) = dz
 			//t = -(A*x0 + B*y0 + C*z0 )/(A*dx + B*dy + C*dz)
 
-			double A = normal.x;
-			double B = normal.y;
-			double C = normal.z;
-			double D = -(normal.x * planePoint.x + normal.y * planePoint.y + normal.z * planePoint.z);
+			float A = normal.X;
+			float B = normal.Y;
+			float C = normal.Z;
+			float D = -(normal.X * planePoint.X + normal.Y * planePoint.Y + normal.Z * planePoint.Z);
 
-			double numerator = A * point.x + B * point.y + C * point.z + D;
-			double denominator = A * direction.x + B * direction.y + C * direction.z;
+			float numerator = A * point.X + B * point.Y + C * point.Z + D;
+			float denominator = A * direction.X + B * direction.Y + C * direction.Z;
 
 			//if line is paralel to the plane...
 			if (Math.Abs(denominator) < TOL) {
 				//if line is contained in the plane...
 				if (Math.Abs(numerator) < TOL) {
-					return point.Clone();
+					return point;
 				} else {
 					return null;
 				}
 			}
 			//if line intercepts the plane...
 			else {
-				double t = -numerator / denominator;
+				float t = -numerator / denominator;
 				Point3d resultPoint = new Point3d();
-				resultPoint.x = point.x + t * direction.x;
-				resultPoint.y = point.y + t * direction.y;
-				resultPoint.z = point.z + t * direction.z;
+				resultPoint.X = point.X + t * direction.X;
+				resultPoint.Y = point.Y + t * direction.Y;
+				resultPoint.Z = point.Z + t * direction.Z;
 
 				return resultPoint;
 			}
@@ -244,9 +252,9 @@ namespace Net3dBool {
 
 		/** Changes slightly the line direction */
 		public void perturbDirection() {
-			direction.x += 1e-5 * Helper.random();
-			direction.y += 1e-5 * Helper.random();
-			direction.z += 1e-5 * Helper.random();
+			direction.X += 1e-5f * Helper.random();
+			direction.Y += 1e-5f * Helper.random();
+			direction.Z += 1e-5f * Helper.random();
 		}
 	}
 }

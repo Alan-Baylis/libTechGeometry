@@ -16,6 +16,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
+
 namespace Net3dBool {
 	public class Segment {
 		/** line resulting from the two planes intersection */
@@ -41,9 +44,9 @@ namespace Net3dBool {
 		private Vertex endVertex;
 
 		/** start of the intersection point */
-		private Point3d startPos;
+		private Point3d? startPos;
 		/** end of the intersection point */
-		private Point3d endPos;
+		private Point3d? endPos;
 
 		/** define as vertex one of the segment ends */
 		public static int VERTEX = 1;
@@ -135,8 +138,8 @@ namespace Net3dBool {
 			clone.endType = endType;
 			clone.startVertex = startVertex.Clone();
 			clone.endVertex = endVertex.Clone();
-			clone.startPos = startPos.Clone();
-			clone.endPos = endPos.Clone();
+			clone.startPos = startPos;
+			clone.endPos = endPos;
 
 			return clone;
 		}
@@ -221,7 +224,7 @@ namespace Net3dBool {
      * @return start position
      */
 		public Point3d getStartPosition() {
-			return startPos;
+			return startPos.Value;
 		}
 
 		/**
@@ -230,7 +233,7 @@ namespace Net3dBool {
      * @return ending position
      */
 		public Point3d getEndPosition() {
-			return endPos;
+			return endPos.Value;
 		}
 
 		//------------------------------------OTHERS------------------------------------//
@@ -306,14 +309,14 @@ namespace Net3dBool {
 		private bool setEdge(Vertex vertex1, Vertex vertex2) {
 			Point3d point1 = vertex1.getPosition();
 			Point3d point2 = vertex2.getPosition();
-			Vector3d edgeDirection = new Vector3d(point2.x - point1.x, point2.y - point1.y, point2.z - point1.z);
+			Vector3d edgeDirection = new Vector3d(point2.X - point1.X, point2.Y - point1.Y, point2.Z - point1.Z);
 			Line edgeLine = new Line(edgeDirection, point1);
 
 			if (index == 0) {
 				startVertex = vertex1;
 				startType = EDGE;
 				startPos = line.computeLineIntersection(edgeLine);
-				startDist = line.computePointToPointDistance(startPos);
+				startDist = line.computePointToPointDistance(startPos.Value);
 				middleType = FACE;
 				index++;
 				return true;
@@ -321,7 +324,7 @@ namespace Net3dBool {
 				endVertex = vertex1;
 				endType = EDGE;
 				endPos = line.computeLineIntersection(edgeLine);
-				endDist = line.computePointToPointDistance(endPos);
+				endDist = line.computePointToPointDistance(endPos.Value);
 				middleType = FACE;
 				index++;
 
@@ -350,7 +353,7 @@ namespace Net3dBool {
 			startVertex = endVertex;
 			endVertex = vertexTemp;
 
-			Point3d posTemp = startPos;
+			Point3d? posTemp = startPos;
 			startPos = endPos;
 			endPos = posTemp;
 		}

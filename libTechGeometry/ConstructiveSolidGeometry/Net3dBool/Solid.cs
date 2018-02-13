@@ -13,16 +13,21 @@ using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
+using Color = System.Numerics.Vector4;
+using System.Numerics;
+
 namespace Net3dBool {
 
 
 	public class Solid : Shape3D {
 		/** array of indices for the vertices from the 'vertices' attribute */
-		protected int[] indices;
+		public uint[] Indices;
 		/** array of points defining the solid's vertices */
-		protected Point3d[] vertices;
+		public Point3d[] Vertices;
 		/** array of color defining the vertices colors */
-		protected Color3f[] colors;
+		public Vector4[] Colors;
 
 		//--------------------------------CONSTRUCTORS----------------------------------//
 
@@ -40,7 +45,7 @@ namespace Net3dBool {
      * @param indices array of indices for a array of vertices
      * @param colors array of colors defining the vertices colors 
      */
-		public Solid(Point3d[] vertices, int[] indices, Color3f[] colors)
+		public Solid(Point3d[] vertices, uint[] indices, Vector4[] colors)
 			: this() {
 			setData(vertices, indices, colors);
 		}
@@ -62,16 +67,16 @@ namespace Net3dBool {
      * @param solidFile file containing the solid coordinates
      * @param color solid color
      */
-		public Solid(FileInfo solidFile, Color3f color)
+		public Solid(FileInfo solidFile, Color color)
 			: this() {
 			loadCoordinateFile(solidFile, color);
 		}
 
 		/** Sets the initial features common to all constructors */
 		protected void setInitialFeatures() {
-			vertices = new Point3d[0];
-			colors = new Color3f[0];
-			indices = new int[0];
+			Vertices = new Point3d[0];
+			Colors = new Vector4[0];
+			Indices = new uint[0];
 
 			//            setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
 			//            setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
@@ -85,35 +90,35 @@ namespace Net3dBool {
      * 
      * @return solid vertices
      */
-		public Point3d[] getVertices() {
+		/*public Point3d[] getVertices() {
 			Point3d[] newVertices = new Point3d[vertices.Length];
 			for (int i = 0; i < newVertices.Length; i++) {
 				newVertices[i] = vertices[i];
 			}
 			return newVertices;
-		}
+		}*/
 
 		/** Gets the solid indices for its vertices
      * 
      * @return solid indices for its vertices
      */
-		public int[] getIndices() {
+		/*public int[] getIndices() {
 			int[] newIndices = new int[indices.Length];
 			Array.Copy(indices, 0, newIndices, 0, indices.Length);
 			return newIndices;
-		}
+		}*/
 
 		/** Gets the vertices colors
      * 
      * @return vertices colors
      */
-		public Color3f[] getColors() {
-			Color3f[] newColors = new Color3f[colors.Length];
+		/*public Color[] getColors() {
+			Color[] newColors = new Color[colors.Length];
 			for (int i = 0; i < newColors.Length; i++) {
 				newColors[i] = colors[i];
 			}
 			return newColors;
-		}
+		}*/
 
 		/**
      * Gets if the solid is empty (without any vertex)
@@ -121,7 +126,7 @@ namespace Net3dBool {
      * @return true if the solid is empty, false otherwise
      */
 		public bool isEmpty() {
-			if (indices.Length == 0) {
+			if (Indices.Length == 0) {
 				return true;
 			} else {
 				return false;
@@ -139,16 +144,16 @@ namespace Net3dBool {
      * @param indices array of indices for a array of vertices
      * @param colors array of colors defining the vertices colors 
      */
-		public void setData(Point3d[] vertices, int[] indices, Color3f[] colors) {
-			this.vertices = new Point3d[vertices.Length];
-			this.colors = new Color3f[colors.Length];
-			this.indices = new int[indices.Length];
+		public void setData(Point3d[] vertices, uint[] indices, Vector4[] colors) {
+			this.Vertices = new Point3d[vertices.Length];
+			this.Colors = new Vector4[colors.Length];
+			this.Indices = new uint[indices.Length];
 			if (indices.Length != 0) {
 				for (int i = 0; i < vertices.Length; i++) {
-					this.vertices[i] = vertices[i].Clone();
-					this.colors[i] = colors[i].Clone();
+					this.Vertices[i] = vertices[i];
+					this.Colors[i] = colors[i];
 				}
-				Array.Copy(indices, 0, this.indices, 0, indices.Length);
+				Array.Copy(indices, 0, this.Indices, 0, indices.Length);
 
 				defineGeometry();
 			}
@@ -163,8 +168,8 @@ namespace Net3dBool {
      * @param indices array of indices for a array of vertices
      * @param color the color of the vertices (the solid color) 
      */
-		public void setData(Point3d[] vertices, int[] indices, Color3f color) {
-			Color3f[] colors = new Color3f[vertices.Length];
+		public void setData(Point3d[] vertices, uint[] indices, Vector4 color) {
+			Vector4[] colors = new Vector4[vertices.Length];
 			colors.fill(color);
 			setData(vertices, indices, colors);
 		}
@@ -177,11 +182,11 @@ namespace Net3dBool {
      * @param dx translation on the x axis
      * @param dy translation on the y axis
      */
-		public void translate(double dx, double dy) {
+		public void translate(float dx, float dy) {
 			if (dx != 0 || dy != 0) {
-				for (int i = 0; i < vertices.Length; i++) {
-					vertices[i].x += dx;
-					vertices[i].y += dy;
+				for (int i = 0; i < Vertices.Length; i++) {
+					Vertices[i].X += dx;
+					Vertices[i].Y += dy;
 				}
 
 				defineGeometry();
@@ -194,41 +199,41 @@ namespace Net3dBool {
      * @param dx rotation on the x axis
      * @param dy rotation on the y axis
      */
-		public void rotate(double dx, double dy) {
-			double cosX = Math.Cos(dx);
-			double cosY = Math.Cos(dy);
-			double sinX = Math.Sin(dx);
-			double sinY = Math.Sin(dy);
+		public void rotate(float dx, float dy) {
+			float cosX = (float)Math.Cos(dx);
+			float cosY = (float)Math.Cos(dy);
+			float sinX = (float)Math.Sin(dx);
+			float sinY = (float)Math.Sin(dy);
 
 			if (dx != 0 || dy != 0) {
 				//get mean
 				Point3d mean = getMean();
 
-				double newX, newY, newZ;
-				for (int i = 0; i < vertices.Length; i++) {
-					vertices[i].x -= mean.x;
-					vertices[i].y -= mean.y;
-					vertices[i].z -= mean.z;
+				float newX, newY, newZ;
+				for (int i = 0; i < Vertices.Length; i++) {
+					Vertices[i].X -= mean.X;
+					Vertices[i].Y -= mean.Y;
+					Vertices[i].Z -= mean.Z;
 
 					//x rotation
 					if (dx != 0) {
-						newY = vertices[i].y * cosX - vertices[i].z * sinX;
-						newZ = vertices[i].y * sinX + vertices[i].z * cosX;
-						vertices[i].y = newY;
-						vertices[i].z = newZ;
+						newY = Vertices[i].Y * cosX - Vertices[i].Z * sinX;
+						newZ = Vertices[i].Y * sinX + Vertices[i].Z * cosX;
+						Vertices[i].Y = newY;
+						Vertices[i].Z = newZ;
 					}
 
 					//y rotation
 					if (dy != 0) {
-						newX = vertices[i].x * cosY + vertices[i].z * sinY;
-						newZ = -vertices[i].x * sinY + vertices[i].z * cosY;
-						vertices[i].x = newX;
-						vertices[i].z = newZ;
+						newX = Vertices[i].X * cosY + Vertices[i].Z * sinY;
+						newZ = -Vertices[i].X * sinY + Vertices[i].Z * cosY;
+						Vertices[i].X = newX;
+						Vertices[i].Z = newZ;
 					}
 
-					vertices[i].x += mean.x;
-					vertices[i].y += mean.y;
-					vertices[i].z += mean.z;
+					Vertices[i].X += mean.X;
+					Vertices[i].Y += mean.Y;
+					Vertices[i].Z += mean.Z;
 				}
 			}
 
@@ -240,10 +245,10 @@ namespace Net3dBool {
      * 
      * @param dz translation on the z axis
      */
-		public void zoom(double dz) {
+		public void zoom(float dz) {
 			if (dz != 0) {
-				for (int i = 0; i < vertices.Length; i++) {
-					vertices[i].z += dz;
+				for (int i = 0; i < Vertices.Length; i++) {
+					Vertices[i].Z += dz;
 				}
 
 				defineGeometry();
@@ -257,11 +262,11 @@ namespace Net3dBool {
      * @param dy scale changing for the y axis
      * @param dz scale changing for the z axis
      */
-		public void scale(double dx, double dy, double dz) {
-			for (int i = 0; i < vertices.Length; i++) {
-				vertices[i].x *= dx;
-				vertices[i].y *= dy;
-				vertices[i].z *= dz;
+		public void scale(float dx, float dy, float dz) {
+			for (int i = 0; i < Vertices.Length; i++) {
+				Vertices[i].X *= dx;
+				Vertices[i].Y *= dy;
+				Vertices[i].Z *= dz;
 			}
 
 			defineGeometry();
@@ -290,7 +295,7 @@ namespace Net3dBool {
      * @param solidFile file used to create the solid
      * @param color solid color
      */
-		protected void loadCoordinateFile(FileInfo solidFile, Color3f color) {
+		protected void loadCoordinateFile(FileInfo solidFile, Color color) {
 			//            try
 			//            {
 			//                BufferedReader reader = new BufferedReader(new FileReader(solidFile));
@@ -346,14 +351,14 @@ namespace Net3dBool {
      */
 		protected Point3d getMean() {
 			Point3d mean = new Point3d();
-			for (int i = 0; i < vertices.Length; i++) {
-				mean.x += vertices[i].x;
-				mean.y += vertices[i].y;
-				mean.z += vertices[i].z;
+			for (int i = 0; i < Vertices.Length; i++) {
+				mean.X += Vertices[i].X;
+				mean.Y += Vertices[i].Y;
+				mean.Z += Vertices[i].Z;
 			}
-			mean.x /= vertices.Length;
-			mean.y /= vertices.Length;
-			mean.z /= vertices.Length;
+			mean.X /= Vertices.Length;
+			mean.Y /= Vertices.Length;
+			mean.Z /= Vertices.Length;
 
 			return mean;
 		}

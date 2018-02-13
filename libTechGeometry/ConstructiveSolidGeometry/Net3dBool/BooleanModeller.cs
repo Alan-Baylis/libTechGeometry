@@ -19,6 +19,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
+using Color = System.Numerics.Vector4;
+
 namespace Net3dBool {
 
 	/**
@@ -127,8 +131,8 @@ namespace Net3dBool {
      */
 		private Solid composeSolid(int faceStatus1, int faceStatus2, int faceStatus3) {
 			var vertices = new List<Vertex>();
-			var indices = new List<int>();
-			var colors = new List<Color3f>();
+			var indices = new List<uint>();
+			var colors = new List<Color>();
 
 			//group the elements of the two solids whose faces fit with the desired status  
 			groupObjectComponents(object1, vertices, indices, colors, faceStatus1, faceStatus2);
@@ -139,13 +143,15 @@ namespace Net3dBool {
 			for (int i = 0; i < vertices.Count; i++) {
 				verticesArray[i] = vertices[i].getPosition();
 			}
-			int[] indicesArray = new int[indices.Count];
+
+			uint[] indicesArray = new uint[indices.Count];
 			for (int i = 0; i < indices.Count; i++) {
 				indicesArray[i] = indices[i];
 			}
-			Color3f[] colorsArray = new Color3f[colors.Count];
+
+			Color[] colorsArray = new Color[colors.Count];
 			for (int i = 0; i < colors.Count; i++) {
-				colorsArray[i] = colors[i].Clone();
+				colorsArray[i] = colors[i];
 			}
 
 			//returns the solid containing the grouped elements
@@ -163,7 +169,7 @@ namespace Net3dBool {
      * @param faceStatus1 a status expected for the faces used to to fill the data arrays
      * @param faceStatus2 a status expected for the faces used to to fill the data arrays
      */
-		private void groupObjectComponents(Object3D obj, List<Vertex> vertices, List<int> indices, List<Color3f> colors, int faceStatus1, int faceStatus2) {
+		private void groupObjectComponents(Object3D obj, List<Vertex> vertices, List<uint> indices, List<Color> colors, int faceStatus1, int faceStatus2) {
 			Face face;
 			//for each face..
 			for (int i = 0; i < obj.getNumFaces(); i++) {
@@ -172,11 +178,12 @@ namespace Net3dBool {
 				if (face.getStatus() == faceStatus1 || face.getStatus() == faceStatus2) {
 					//adds the face elements into the arrays 
 					Vertex[] faceVerts = { face.v1, face.v2, face.v3 };
+
 					for (int j = 0; j < faceVerts.Length; j++) {
 						if (vertices.Contains(faceVerts[j])) {
-							indices.Add(vertices.IndexOf(faceVerts[j]));
+							indices.Add((uint)vertices.IndexOf(faceVerts[j]));
 						} else {
-							indices.Add(vertices.Count);
+							indices.Add((uint)vertices.Count);
 							vertices.Add(faceVerts[j]);
 							colors.Add(faceVerts[j].getColor());
 						}

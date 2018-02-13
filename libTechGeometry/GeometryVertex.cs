@@ -19,11 +19,15 @@ namespace libTechGeometry {
 	}
 
 	public static class VertexUtils {
-		public static Vertex[] ToVertices(this Vector3[] Positions) {
+		public static Vertex[] ToVertices(this Vector3[] Positions, Vector4[] Colors = null) {
 			Vertex[] Verts = new Vertex[Positions.Length];
 
-			for (int i = 0; i < Verts.Length; i++)
+			for (int i = 0; i < Verts.Length; i++) {
 				Verts[i] = Positions[i];
+
+				if (Colors != null)
+					Verts[i].Color = Colors[i];
+			}
 
 			return Verts;
 		}

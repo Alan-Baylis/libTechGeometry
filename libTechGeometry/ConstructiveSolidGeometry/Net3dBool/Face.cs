@@ -16,6 +16,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+using Point3d = System.Numerics.Vector3;
+using Vector3d = System.Numerics.Vector3;
+
 namespace Net3dBool {
 	public class Face {
 		/** first vertex */
@@ -132,12 +135,14 @@ namespace Net3dBool {
 			Point3d p3 = v3.getPosition();
 			Vector3d xy, xz, normal;
 
-			xy = new Vector3d(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
-			xz = new Vector3d(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
+			xy = new Vector3d(p2.X - p1.X, p2.Y - p1.Y, p2.Z - p1.Z);
+			xz = new Vector3d(p3.X - p1.X, p3.Y - p1.Y, p3.Z - p1.Z);
 
-			normal = new Vector3d();
+			/*normal = new Vector3d();
 			normal.cross(xy, xz);
-			normal.normalize();
+			normal.normalize();*/
+
+			normal = Vector3d.Normalize(Vector3d.Cross(xy, xz));
 
 			return normal;
 		}
@@ -161,12 +166,12 @@ namespace Net3dBool {
 			Point3d p1 = v1.getPosition();
 			Point3d p2 = v2.getPosition();
 			Point3d p3 = v3.getPosition();
-			Vector3d xy = new Vector3d(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z);
-			Vector3d xz = new Vector3d(p3.x - p1.x, p3.y - p1.y, p3.z - p1.z);
+			Vector3d xy = new Vector3d(p2.X - p1.X, p2.Y - p1.Y, p2.Z - p1.Z);
+			Vector3d xz = new Vector3d(p3.X - p1.X, p3.Y - p1.Y, p3.Z - p1.Z);
 
-			double a = p1.distance(p2);
-			double c = p1.distance(p3);
-			double B = xy.angle(xz);
+			double a = Vector3d.Distance(p1, p2);
+			double c =Vector3d.Distance(p1, p3);
+			double B = xy.Angle(xz);
 
 			return (a * c * Math.Sin(B)) / 2d;
 		}
@@ -214,14 +219,14 @@ namespace Net3dBool {
 		public void rayTraceClassify(Object3D obj) {
 			//creating a ray starting starting at the face baricenter going to the normal direction
 			Point3d p0 = new Point3d();
-			p0.x = (v1.x + v2.x + v3.x) / 3d;
-			p0.y = (v1.y + v2.y + v3.y) / 3d;
-			p0.z = (v1.z + v2.z + v3.z) / 3d;
+			p0.X = (v1.X + v2.X + v3.X) / 3.0f;
+			p0.Y = (v1.Y + v2.Y + v3.Y) / 3.0f;
+			p0.Z = (v1.Z + v2.Z + v3.Z) / 3.0f;
 			Line ray = new Line(getNormal(), p0);
 
 			bool success;
 			double dotProduct, distance;
-			Point3d intersectionPoint;
+			Point3d? intersectionPoint;
 			Face closestFace = null;
 			double closestDistance;
 
@@ -231,12 +236,16 @@ namespace Net3dBool {
 				//for each face from the other solid...
 				for (int i = 0; i < obj.getNumFaces(); i++) {
 					Face face = obj.getFace(i);
-					dotProduct = face.getNormal().dot(ray.getDirection());
+					//dotProduct = face.getNormal().dot(ray.getDirection());
+
+					dotProduct = Vector3d.Dot(face.getNormal(), ray.getDirection());
+
 					intersectionPoint = ray.computePlaneIntersection(face.getNormal(), face.v1.getPosition());
+
 
 					//if ray intersects the plane...  
 					if (intersectionPoint != null) {
-						distance = ray.computePointToPointDistance(intersectionPoint);
+						distance = ray.computePointToPointDistance(intersectionPoint.Value);
 
 						//if ray lies in plane...
 						if (Math.Abs(distance) < TOL && Math.Abs(dotProduct) < TOL) {
@@ -249,7 +258,7 @@ namespace Net3dBool {
 						//if ray starts in plane...
 						if (Math.Abs(distance) < TOL && Math.Abs(dotProduct) > TOL) {
 							//if ray intersects the face...
-							if (face.hasPoint(intersectionPoint)) {
+							if (face.hasPoint(intersectionPoint.Value)) {
 								//faces coincide
 								closestFace = face;
 								closestDistance = 0;
@@ -261,7 +270,7 @@ namespace Net3dBool {
 									else if (Math.Abs(dotProduct) > TOL && distance > TOL) {
 							if (distance < closestDistance) {
 								//if ray intersects the face;
-								if (face.hasPoint(intersectionPoint)) {
+								if (face.hasPoint(intersectionPoint.Value)) {
 									//this face is the closest face untill now
 									closestDistance = distance;
 									closestFace = face;
@@ -278,7 +287,8 @@ namespace Net3dBool {
 			}
 			//face found: test dot product
 			else {
-				dotProduct = closestFace.getNormal().dot(ray.getDirection());
+				//dotProduct = closestFace.getNormal().dot(ray.getDirection());
+				dotProduct = Vector3d.Dot(closestFace.getNormal(), ray.getDirection());
 
 				//distance = 0: coplanar faces
 				if (Math.Abs(closestDistance) < TOL) {
@@ -315,7 +325,7 @@ namespace Net3dBool {
 			Vector3d normal = getNormal();
 
 			//if x is constant...   
-			if (Math.Abs(normal.x) > TOL) {
+			if (Math.Abs(normal.X) > TOL) {
 				//tests on the x plane
 				result1 = linePositionInX(point, v1.getPosition(), v2.getPosition());
 				result2 = linePositionInX(point, v2.getPosition(), v3.getPosition());
@@ -323,7 +333,7 @@ namespace Net3dBool {
 			}
 
 			//if y is constant...
-			else if (Math.Abs(normal.y) > TOL) {
+			else if (Math.Abs(normal.Y) > TOL) {
 				//tests on the y plane
 				result1 = linePositionInY(point, v1.getPosition(), v2.getPosition());
 				result2 = linePositionInY(point, v2.getPosition(), v3.getPosition());
@@ -357,13 +367,13 @@ namespace Net3dBool {
      */
 		private static int linePositionInX(Point3d point, Point3d pointLine1, Point3d pointLine2) {
 			double a, b, z;
-			if ((Math.Abs(pointLine1.y - pointLine2.y) > TOL) && (((point.y >= pointLine1.y) && (point.y <= pointLine2.y)) || ((point.y <= pointLine1.y) && (point.y >= pointLine2.y)))) {
-				a = (pointLine2.z - pointLine1.z) / (pointLine2.y - pointLine1.y);
-				b = pointLine1.z - a * pointLine1.y;
-				z = a * point.y + b;
-				if (z > point.z + TOL) {
+			if ((Math.Abs(pointLine1.Y - pointLine2.Y) > TOL) && (((point.Y >= pointLine1.Y) && (point.Y <= pointLine2.Y)) || ((point.Y <= pointLine1.Y) && (point.Y >= pointLine2.Y)))) {
+				a = (pointLine2.Z - pointLine1.Z) / (pointLine2.Y - pointLine1.Y);
+				b = pointLine1.Z - a * pointLine1.Y;
+				z = a * point.Y + b;
+				if (z > point.Z + TOL) {
 					return UP;
-				} else if (z < point.z - TOL) {
+				} else if (z < point.Z - TOL) {
 					return DOWN;
 				} else {
 					return ON;
@@ -384,13 +394,13 @@ namespace Net3dBool {
 
 		private static int linePositionInY(Point3d point, Point3d pointLine1, Point3d pointLine2) {
 			double a, b, z;
-			if ((Math.Abs(pointLine1.x - pointLine2.x) > TOL) && (((point.x >= pointLine1.x) && (point.x <= pointLine2.x)) || ((point.x <= pointLine1.x) && (point.x >= pointLine2.x)))) {
-				a = (pointLine2.z - pointLine1.z) / (pointLine2.x - pointLine1.x);
-				b = pointLine1.z - a * pointLine1.x;
-				z = a * point.x + b;
-				if (z > point.z + TOL) {
+			if ((Math.Abs(pointLine1.X - pointLine2.X) > TOL) && (((point.X >= pointLine1.X) && (point.X <= pointLine2.X)) || ((point.X <= pointLine1.X) && (point.X >= pointLine2.X)))) {
+				a = (pointLine2.Z - pointLine1.Z) / (pointLine2.X - pointLine1.X);
+				b = pointLine1.Z - a * pointLine1.X;
+				z = a * point.X + b;
+				if (z > point.Z + TOL) {
 					return UP;
-				} else if (z < point.z - TOL) {
+				} else if (z < point.Z - TOL) {
 					return DOWN;
 				} else {
 					return ON;
@@ -411,13 +421,13 @@ namespace Net3dBool {
 
 		private static int linePositionInZ(Point3d point, Point3d pointLine1, Point3d pointLine2) {
 			double a, b, y;
-			if ((Math.Abs(pointLine1.x - pointLine2.x) > TOL) && (((point.x >= pointLine1.x) && (point.x <= pointLine2.x)) || ((point.x <= pointLine1.x) && (point.x >= pointLine2.x)))) {
-				a = (pointLine2.y - pointLine1.y) / (pointLine2.x - pointLine1.x);
-				b = pointLine1.y - a * pointLine1.x;
-				y = a * point.x + b;
-				if (y > point.y + TOL) {
+			if ((Math.Abs(pointLine1.X - pointLine2.X) > TOL) && (((point.X >= pointLine1.X) && (point.X <= pointLine2.X)) || ((point.X <= pointLine1.X) && (point.X >= pointLine2.X)))) {
+				a = (pointLine2.Y - pointLine1.Y) / (pointLine2.X - pointLine1.X);
+				b = pointLine1.Y - a * pointLine1.X;
+				y = a * point.X + b;
+				if (y > point.Y + TOL) {
 					return UP;
-				} else if (y < point.y - TOL) {
+				} else if (y < point.Y - TOL) {
 					return DOWN;
 				} else {
 					return ON;

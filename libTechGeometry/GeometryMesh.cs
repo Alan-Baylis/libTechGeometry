@@ -19,6 +19,12 @@ namespace libTechGeometry {
 			Indices = null;
 		}
 
+		public void GenerateSequentialIndices() {
+			Indices = new uint[Vertices.Length];
+			for (int i = 0; i < Indices.Length; i++)
+				Indices[i] = (uint)i;
+		}
+
 		public Vertex[] GetExpandedVertices() {
 			if (Vertices == null)
 				throw new InvalidOperationException("Vertices cannot be null");

@@ -49,6 +49,7 @@
     <Compile Include="ConstructiveSolidGeometry\CSG.cs" />
     <Compile Include="ConstructiveSolidGeometry\Net3dBool\BooleanModeller.cs" />
     <Compile Include="ConstructiveSolidGeometry\Net3dBool\Bound.cs" />
+    <Compile Include="ConstructiveSolidGeometry\Net3dBool\DefaultCoordinates.cs" />
     <Compile Include="ConstructiveSolidGeometry\Net3dBool\Face.cs" />
     <Compile Include="ConstructiveSolidGeometry\Net3dBool\Line.cs" />
     <Compile Include="ConstructiveSolidGeometry\Net3dBool\Misc.cs" />
