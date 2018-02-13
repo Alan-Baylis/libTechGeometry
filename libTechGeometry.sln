@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libTechGeometry", "libTechGeometry\libTechGeometry.csproj", "{842275CB-4D06-4C45-9FDE-D7A943664F3A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{096EF14C-B2CB-4A82-B04B-F4641186C551}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{842275CB-4D06-4C45-9FDE-D7A943664F3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{842275CB-4D06-4C45-9FDE-D7A943664F3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{842275CB-4D06-4C45-9FDE-D7A943664F3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{842275CB-4D06-4C45-9FDE-D7A943664F3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{096EF14C-B2CB-4A82-B04B-F4641186C551}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{096EF14C-B2CB-4A82-B04B-F4641186C551}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{096EF14C-B2CB-4A82-B04B-F4641186C551}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{096EF14C-B2CB-4A82-B04B-F4641186C551}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2E6F19D7-32E3-4133-B777-C8CA248A37ED}
+	EndGlobalSection
+EndGlobal
