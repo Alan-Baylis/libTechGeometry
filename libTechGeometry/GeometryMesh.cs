@@ -9,18 +9,23 @@ namespace libTechGeometry {
 	public class GeometryMesh : IImportable {
 		public GeometryMaterial Material;
 
-		public Vector3[] Vertices;
-		public Vector4[] Colors;
-		public Vector2[] UVs;
+		public Vertex[] Vertices;
 		public uint[] Indices;
 
 		public GeometryMesh() {
 			Material = GeometryMaterial.Empty;
 
 			Vertices = null;
-			Colors = null;
-			UVs = null;
 			Indices = null;
+		}
+
+		public Vertex[] GetExpandedVertices() {
+			if (Vertices == null)
+				throw new InvalidOperationException("Vertices cannot be null");
+			if (Indices == null)
+				throw new Exception("Indices cannot be null");
+
+			return Vertices.ExpandIndices(Indices);
 		}
 
 		public override string ToString() {

@@ -18,10 +18,10 @@ namespace libTechGeometry.Importers {
 			// Virtual file system support by replacing the default FileExists/Open functions
 			// Equivalent to Importer.OpenIfExists
 			Stream FileStream = Importer.FileExists(FilePath) ? Importer.Open(FilePath) : null;
-			
-			GeometryMesh MeshA = new GeometryMesh();
-			MeshA.Vertices = new Vector3[] { new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1) };
 
+			GeometryMesh MeshA = new GeometryMesh();
+			MeshA.Vertices = new Vector3[] { new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1) }.ToVertices();
+			
 			MeshA.Material.Name = "glass";
 			MeshA.Material.DiffuseTexture = "glass.png";
 			MeshA.Material.IsTransparent = true;
