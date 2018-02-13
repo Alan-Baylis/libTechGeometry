@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.IO;
 
 namespace libTechGeometry.Importers {
 	class Example : Importer<GeometryModel> {
@@ -11,15 +12,23 @@ namespace libTechGeometry.Importers {
 			return FileExtension == ".ext";
 		}
 
-		public override GeometryModel Load(string FilePath) {
-			GeometryModel Mdl = new GeometryModel();
+		public override bool TryLoad(string FilePath, out GeometryModel Mdl) {
+			Mdl = new GeometryModel();
 
+			// Virtual file system support by replacing the default FileExists/Open functions
+			// Equivalent to Importer.OpenIfExists
+			Stream FileStream = Importer.FileExists(FilePath) ? Importer.Open(FilePath) : null;
+			
 			GeometryMesh MeshA = new GeometryMesh();
 			MeshA.Vertices = new Vector3[] { new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(0, 0, 1) };
-			MeshA.Material = new GeometryMaterial("material a");
+
+			MeshA.Material.Name = "glass";
+			MeshA.Material.DiffuseTexture = "glass.png";
+			MeshA.Material.IsTransparent = true;
+
 			Mdl.Meshes.Add(MeshA);
 
-			return Mdl;
+			return true;
 		}
 	}
 }

@@ -7,21 +7,24 @@ using System.Numerics;
 
 namespace libTechGeometry {
 	public class GeometryMesh : IImportable {
-		public bool IsTransparent;
-
 		public GeometryMaterial Material;
+
 		public Vector3[] Vertices;
 		public Vector4[] Colors;
 		public Vector2[] UVs;
 		public uint[] Indices;
 
 		public GeometryMesh() {
-			IsTransparent = false;
+			Material = GeometryMaterial.Empty;
 
 			Vertices = null;
 			Colors = null;
 			UVs = null;
 			Indices = null;
+		}
+
+		public override string ToString() {
+			return string.Format("Mesh({0})", Vertices?.Length.ToString() ?? "null");
 		}
 	}
 }

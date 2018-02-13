@@ -8,6 +8,8 @@ using libTechGeometry;
 namespace Test {
 	class Program {
 		static void Main(string[] args) {
+			GeometryModel Mdl = Importer.Load<GeometryModel>("test.ext");
+
 
 			Console.WriteLine("Done!");
 			Console.ReadLine();
